@@ -1,16 +1,16 @@
-// index.js
-const express = require('express');
-const fetch = require('node-fetch');
-const fs = require('fs');
-const path = require('path');
-const { v4: uuidv4 } = require('uuid');
+import express from 'express';
+import fetch from 'node-fetch';
+import { v4 as uuidv4 } from 'uuid';
 
 const app = express();
 
-const CLIENT_ID = process.env.CLIENT_ID || 'SEU_CLIENT_ID';
-const CLIENT_SECRET = process.env.CLIENT_SECRET || 'SEU_CLIENT_SECRET';
+// Variáveis de ambiente configuradas no Vercel
+const CLIENT_ID = process.env.CLIENT_ID;
+const CLIENT_SECRET = process.env.CLIENT_SECRET;
 const REDIRECT_URI = 'https://stremio-assistido-trakt-addon.vercel.app/auth/callback';
-const STORAGE_PATH = path.join(__dirname, 'storage.json');
+
+// Objeto em memória para armazenar tokens por UID
+const tokens = {};
 
 app.get('/', (req, res) => {
   res.redirect('/configure');
@@ -34,7 +34,9 @@ app.get('/configure', (req, res) => {
 
 app.get('/auth/callback', async (req, res) => {
   const code = req.query.code;
-  if (!code) return res.status(400).send('Código de autorização não fornecido.');
+  if (!code) {
+    return res.status(400).send('Código de autorização não fornecido.');
+  }
 
   try {
     const tokenResponse = await fetch('https://api.trakt.tv/oauth/token', {
@@ -55,45 +57,41 @@ app.get('/auth/callback', async (req, res) => {
     }
 
     const tokenData = await tokenResponse.json();
-    const userId = uuidv4();
 
-    const storage = fs.existsSync(STORAGE_PATH)
-      ? JSON.parse(fs.readFileSync(STORAGE_PATH))
-      : {};
+    // Gera UID único para esse token
+    const uid = uuidv4();
 
-    storage[userId] = tokenData;
-    fs.writeFileSync(STORAGE_PATH, JSON.stringify(storage, null, 2));
+    // Salva token em memória (não persiste se reiniciar)
+    tokens[uid] = tokenData;
 
     res.send(`
       <html>
-        <head><title>Token Salvo</title></head>
+        <head><title>Token Obtido</title></head>
         <body>
-          <h1>Token salvo com sucesso!</h1>
-          <p>Use este link para seu Stremio: <br><br>
-          <code>https://stremio-assistido-trakt-addon.vercel.app/stremio?uid=${userId}</code></p>
+          <h1>Token de acesso obtido com sucesso!</h1>
+          <pre>${JSON.stringify(tokenData, null, 2)}</pre>
+          <p>Seu UID: <code>${uid}</code></p>
+          <p>Use esta URL no seu complemento Stremio:</p>
+          <pre>https://${req.headers.host}/stremio?uid=${uid}</pre>
         </body>
       </html>
     `);
+
   } catch (err) {
     res.status(500).send(`Erro no servidor: ${err.message}`);
   }
 });
 
-// Exemplo de rota que poderia ser consumida pelo Stremio
+// Exemplo simples para endpoint que retornaria token pelo uid
 app.get('/stremio', (req, res) => {
   const uid = req.query.uid;
-  if (!uid) return res.status(400).send('UID ausente');
-
-  const storage = fs.existsSync(STORAGE_PATH)
-    ? JSON.parse(fs.readFileSync(STORAGE_PATH))
-    : {};
-
-  const userToken = storage[uid];
-  if (!userToken) return res.status(404).send('Usuário não encontrado');
-
-  // Aqui você pode usar userToken.access_token para buscar dados da API do Trakt
-  res.send(`Stremio personalizado para UID: ${uid}`);
+  if (!uid || !tokens[uid]) {
+    return res.status(404).send('Token não encontrado para este UID.');
+  }
+  res.json(tokens[uid]);
 });
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`Servidor rodando na porta ${PORT}`));
+app.listen(PORT, () => {
+  console.log(`Servidor rodando na porta ${PORT}`);
+});
