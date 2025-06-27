@@ -83,7 +83,7 @@ app.get('/auth/callback', async (req, res) => {
   }
 });
 
-// Rota para retornar token salvo no Redis via UID
+// Rota que retorna o token salvo no Redis via UID
 app.get('/stremio', async (req, res) => {
   const uid = req.query.uid;
   if (!uid) return res.status(400).send('UID não fornecido.');
@@ -91,7 +91,6 @@ app.get('/stremio', async (req, res) => {
   try {
     const { buscarToken } = await import('./tokenStore.js');
     const token = await buscarToken(uid);
-
     if (!token) return res.status(404).send('Token não encontrado para este UID.');
     res.json(token);
   } catch (err) {
@@ -100,12 +99,12 @@ app.get('/stremio', async (req, res) => {
   }
 });
 
-// 🔧 Corrigida: rota para servir o addon.js ao Stremio
+// Corrigida: rota para servir o addon.js ao Stremio
 app.get('/addon.js', async (req, res) => {
   try {
     const { default: getInterface } = await import('./addon.js');
     res.setHeader('Content-Type', 'application/json');
-    res.send(JSON.stringify(getInterface)); // <-- sem executar aqui!
+    res.send(JSON.stringify(getInterface)); // <- não executa como função
   } catch (err) {
     console.error('Erro ao carregar addon.js:', err.message);
     res.status(500).send('Erro ao carregar o addon.');
