@@ -112,5 +112,17 @@ app.get('/addon.js', async (req, res) => {
     res.status(500).send('Erro ao carregar o addon.');
   }
 });
+// Rota para servir o addon.js ao Stremio com suporte ao UID
+app.get('/addon.js', async (req, res) => {
+  try {
+    const { default: getInterface } = await import('./addon.js');
+    res.setHeader('Content-Type', 'application/json');
+    const manifest = await getInterface();
+    res.send(JSON.stringify(manifest));
+  } catch (err) {
+    console.error('Erro ao carregar addon.js:', err.message);
+    res.status(500).send('Erro ao carregar o addon.');
+  }
+});
 
 export default app;
