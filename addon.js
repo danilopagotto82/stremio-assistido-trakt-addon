@@ -11,10 +11,10 @@ const builder = new addonBuilder({
 });
 
 builder.defineStreamHandler(async ({ id }, extra) => {
-  const uid = extra?.uid;
-  if (!uid) return { streams: [] };
-
   try {
+    const uid = extra?.uid;
+    if (!uid) return { streams: [] };
+
     const { buscarToken } = await import('./tokenStore.js');
     const fetch = (await import('node-fetch')).default;
 
@@ -42,7 +42,7 @@ builder.defineStreamHandler(async ({ id }, extra) => {
       ],
     };
   } catch (err) {
-    console.error('Erro no StreamHandler:', err.message);
+    console.error('Erro no handler:', err.message);
     return { streams: [] };
   }
 });
