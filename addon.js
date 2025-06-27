@@ -2,12 +2,12 @@ import { addonBuilder } from 'stremio-addon-sdk';
 import fetch from 'node-fetch';
 import { buscarToken } from './tokenStore.js';
 
-const getInterface = () => {
+export default function getInterface() {
   const builder = new addonBuilder({
     id: 'org.trakt.assistido',
     version: '1.0.0',
     name: 'Assistido Trakt',
-    description: 'Mostra streams baseados no histórico do Trakt',
+    description: 'Mostra streams com base no histórico do Trakt',
     resources: ['stream'],
     types: ['movie'],
     idPrefixes: ['tt'],
@@ -15,10 +15,16 @@ const getInterface = () => {
 
   builder.defineStreamHandler(async ({ id }, extra) => {
     const uid = extra?.uid;
-    if (!uid) return { streams: [] };
+    if (!uid) {
+      console.warn('UID não fornecido.');
+      return { streams: [] };
+    }
 
     const token = await buscarToken(uid);
-    if (!token) return { streams: [] };
+    if (!token) {
+      console.warn(`Token não encontrado para UID: ${uid}`);
+      return { streams: [] };
+    }
 
     try {
       const response = await fetch('https://api.trakt.tv/sync/history/movies?limit=1', {
@@ -30,24 +36,22 @@ const getInterface = () => {
       });
 
       const data = await response.json();
-      const title = data?.[0]?.movie?.title ?? 'Assistido via Trakt';
+      const title = data?.[0]?.movie?.title ?? 'Filme assistido';
 
       return {
         streams: [
           {
             title: `🎬 ${title}`,
-            name: 'Trakt Stream',
+            name: 'Assistido no Trakt',
             url: 'https://trakt.tv/',
           },
         ],
       };
     } catch (err) {
-      console.error('Erro ao consultar o Trakt:', err.message);
+      console.error('Erro na API do Trakt:', err.message);
       return { streams: [] };
     }
   });
 
   return builder.getInterface();
-};
-
-export default getInterface;
+}
