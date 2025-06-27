@@ -1,0 +1,14 @@
+# Ignorar pasta node_modules (dependências)
+node_modules/
+
+# Ignorar arquivos de ambiente, se usar (não subir informações sensíveis)
+.env
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Sistema operacional
+.DS_Store
+Thumbs.db
