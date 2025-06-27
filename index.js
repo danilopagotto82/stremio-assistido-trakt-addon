@@ -6,7 +6,6 @@ import { fileURLToPath } from 'url';
 import { salvarToken } from './tokenStore.js';
 
 const app = express();
-
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 app.use(express.static(path.join(__dirname, 'public')));
@@ -93,7 +92,6 @@ app.get('/stremio', async (req, res) => {
   }
 });
 
-// ✅ Rota corrigida para addon.js
 app.get('/addon.js', async (req, res) => {
   try {
     const { default: manifest } = await import('./addon.js');
