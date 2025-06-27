@@ -7,22 +7,18 @@ import { salvarToken } from './tokenStore.js';
 
 const app = express();
 
-// Servir arquivos da pasta /public
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Variáveis de ambiente
 const CLIENT_ID = process.env.CLIENT_ID;
 const CLIENT_SECRET = process.env.CLIENT_SECRET;
 const REDIRECT_URI = 'https://stremio-assistido-trakt-addon.vercel.app/auth/callback';
 
-// Página inicial redireciona para /configure
 app.get('/', (req, res) => {
   res.redirect('/configure');
 });
 
-// Página com botão de login Trakt
 app.get('/configure', (req, res) => {
   const authUrl = `https://trakt.tv/oauth/authorize?response_type=code&client_id=${CLIENT_ID}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}`;
   res.send(`
@@ -39,7 +35,6 @@ app.get('/configure', (req, res) => {
   `);
 });
 
-// Callback após login do Trakt → salva token + UID
 app.get('/auth/callback', async (req, res) => {
   const code = req.query.code;
   if (!code) return res.status(400).send('Código de autorização não fornecido.');
@@ -53,8 +48,8 @@ app.get('/auth/callback', async (req, res) => {
         client_id: CLIENT_ID,
         client_secret: CLIENT_SECRET,
         redirect_uri: REDIRECT_URI,
-        grant_type: 'authorization_code'
-      })
+        grant_type: 'authorization_code',
+      }),
     });
 
     if (!tokenResponse.ok) {
@@ -83,7 +78,6 @@ app.get('/auth/callback', async (req, res) => {
   }
 });
 
-// Busca token pelo UID
 app.get('/stremio', async (req, res) => {
   const uid = req.query.uid;
   if (!uid) return res.status(400).send('UID não fornecido.');
@@ -99,7 +93,7 @@ app.get('/stremio', async (req, res) => {
   }
 });
 
-// 🔧 Rota corrigida para servir addon.js ao Stremio
+// ✅ Rota corrigida para addon.js
 app.get('/addon.js', async (req, res) => {
   try {
     const { default: manifest } = await import('./addon.js');
