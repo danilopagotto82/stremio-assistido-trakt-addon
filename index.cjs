@@ -1,11 +1,16 @@
 const express = require('express');
-const fetch = require('node-fetch'); // Versão 2.x, importante!
-
+const fetch = require('node-fetch');
 const app = express();
 
-const CLIENT_ID = process.env.CLIENT_ID || 'seu_client_id_aqui';
-const CLIENT_SECRET = process.env.CLIENT_SECRET || 'seu_client_secret_aqui';
-const REDIRECT_URI = 'https://seu-dominio.vercel.app/auth/callback';
+const CLIENT_ID = process.env.CLIENT_ID;
+const CLIENT_SECRET = process.env.CLIENT_SECRET;
+
+const REDIRECT_URI = 'https://stremio-assistido-trakt-addon.vercel.app/auth/callback';
+
+if (!CLIENT_ID || !CLIENT_SECRET) {
+  console.error('Erro: CLIENT_ID e CLIENT_SECRET devem estar configurados nas variáveis ambiente.');
+  process.exit(1);
+}
 
 app.get('/', (req, res) => {
   res.redirect('/configure');
@@ -38,17 +43,17 @@ app.get('/auth/callback', async (req, res) => {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        code,
+        code: code,
         client_id: CLIENT_ID,
         client_secret: CLIENT_SECRET,
         redirect_uri: REDIRECT_URI,
-        grant_type: 'authorization_code',
-      }),
+        grant_type: 'authorization_code'
+      })
     });
 
     if (!tokenResponse.ok) {
-      const errorText = await tokenResponse.text();
-      return res.status(500).send(`Erro ao obter token: ${errorText}`);
+      const errorBody = await tokenResponse.text();
+      return res.status(500).send(`Erro ao obter token: ${errorBody}`);
     }
 
     const tokenData = await tokenResponse.json();
