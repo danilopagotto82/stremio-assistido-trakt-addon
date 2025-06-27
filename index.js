@@ -39,7 +39,7 @@ app.get('/configure', (req, res) => {
   `);
 });
 
-// Recebe código de autorização e salva o token com UID
+// Callback OAuth → troca código por token e salva com UID
 app.get('/auth/callback', async (req, res) => {
   const code = req.query.code;
   if (!code) return res.status(400).send('Código de autorização não fornecido.');
@@ -53,8 +53,8 @@ app.get('/auth/callback', async (req, res) => {
         client_id: CLIENT_ID,
         client_secret: CLIENT_SECRET,
         redirect_uri: REDIRECT_URI,
-        grant_type: 'authorization_code'
-      })
+        grant_type: 'authorization_code',
+      }),
     });
 
     if (!tokenResponse.ok) {
@@ -83,7 +83,7 @@ app.get('/auth/callback', async (req, res) => {
   }
 });
 
-// Rota para buscar token salvo no Redis via UID
+// Rota para retornar token salvo no Redis via UID
 app.get('/stremio', async (req, res) => {
   const uid = req.query.uid;
   if (!uid) return res.status(400).send('UID não fornecido.');
@@ -100,12 +100,12 @@ app.get('/stremio', async (req, res) => {
   }
 });
 
-// Rota para servir o addon.js com suporte ao Stremio
+// 🔧 Corrigida: rota para servir o addon.js ao Stremio
 app.get('/addon.js', async (req, res) => {
   try {
     const { default: getInterface } = await import('./addon.js');
     res.setHeader('Content-Type', 'application/json');
-    res.send(JSON.stringify(await getInterface()));
+    res.send(JSON.stringify(getInterface)); // <-- sem executar aqui!
   } catch (err) {
     console.error('Erro ao carregar addon.js:', err.message);
     res.status(500).send('Erro ao carregar o addon.');
