@@ -1,13 +1,12 @@
 {
-  "name": "assistido-trakt-addon",
+  "name": "assistido-trakt",
   "version": "1.0.0",
-  "description": "Complemento Stremio que mostra o status assistido do Trakt",
   "main": "index.js",
   "scripts": {
     "start": "node index.js"
   },
   "dependencies": {
-    "express": "^4.18.2",
-    "axios": "^1.3.5"
+    "axios": "^1.6.7",
+    "express": "^4.18.2"
   }
 }
