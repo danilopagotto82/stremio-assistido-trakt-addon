@@ -1,1 +1,63 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Assistido Trakt - Stremio</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      text-align: center;
+      padding: 20px;
+    }
+    input {
+      font-size: 1.2em;
+      padding: 5px;
+      width: 300px;
+    }
+    button {
+      font-size: 1.2em;
+      padding: 10px 20px;
+      margin-top: 15px;
+    }
+    .section {
+      margin: 30px 0;
+    }
+  </style>
+</head>
+<body>
+  <h1>🧩 Complemento Stremio - Assistido no Trakt</h1>
+
+  <div class="section">
+    <p>Clique abaixo para conectar com sua conta do Trakt:</p>
+    <a href="/configure">
+      <button>🔗 Conectar com o Trakt</button>
+    </a>
+  </div>
+
+  <div class="section">
+    <label for="uid">Seu UID:</label><br />
+    <input type="text" id="uid" placeholder="Cole aqui seu UID" />
+  </div>
+
+  <div class="section">
+    <p>Link do seu complemento personalizado:</p>
+    <code id="addonLink">https://seu-projeto.vercel.app/addon.js?uid=SEU_UID</code>
+  </div>
+
+  <script>
+    const uidInput = document.getElementById("uid");
+    const addonLink = document.getElementById("addonLink");
+
+    uidInput.addEventListener("input", () => {
+      const uid = uidInput.value.trim();
+      if (uid) {
+        addonLink.textContent = `https://${window.location.host}/addon.js?uid=${uid}`;
+      } else {
+        addonLink.textContent = "https://seu-projeto.vercel.app/addon.js?uid=SEU_UID";
+      }
+    });
+  </script>
+</body>
+</html>
 
