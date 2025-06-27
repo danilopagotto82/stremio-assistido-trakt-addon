@@ -1,6 +1,4 @@
 import { addonBuilder } from 'stremio-addon-sdk';
-import fetch from 'node-fetch';
-import { buscarToken } from './tokenStore.js';
 
 const builder = new addonBuilder({
   id: 'org.trakt.assistido',
@@ -16,10 +14,13 @@ builder.defineStreamHandler(async ({ id }, extra) => {
   const uid = extra?.uid;
   if (!uid) return { streams: [] };
 
-  const token = await buscarToken(uid);
-  if (!token) return { streams: [] };
-
   try {
+    const { buscarToken } = await import('./tokenStore.js');
+    const fetch = (await import('node-fetch')).default;
+
+    const token = await buscarToken(uid);
+    if (!token) return { streams: [] };
+
     const response = await fetch('https://api.trakt.tv/sync/history/movies?limit=1', {
       headers: {
         Authorization: `Bearer ${token.access_token}`,
@@ -41,9 +42,9 @@ builder.defineStreamHandler(async ({ id }, extra) => {
       ],
     };
   } catch (err) {
-    console.error('Erro na API do Trakt:', err.message);
+    console.error('Erro no StreamHandler:', err.message);
     return { streams: [] };
   }
 });
 
-export default builder.getInterface(); // ← exporta o manifesto diretamente
+export default builder.getInterface();
