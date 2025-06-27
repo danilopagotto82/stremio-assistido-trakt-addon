@@ -1,0 +1,16 @@
+{
+  "id": "br.com.danilodanilopagotto82.assistidottrakt",
+  "version": "1.0.0",
+  "name": "Assistido Trakt",
+  "description": "Complemento Stremio que mostra Assistido do Trakt nos Cartões informativos (Handy Cards)",
+  "resources": ["stream", "meta", "catalog"],
+  "types": ["movie", "series", "episode"],
+  "catalogs": [],
+  "behaviorHints": {
+    "supportsAutoPlay": false,
+    "configurable": true
+  },
+  "idPrefixes": ["tt", "tv"],
+  "contactEmail": "danilopagotto2013@gmail.com",
+  "icon": "https://cdn-icons-png.flaticon.com/512/190/190411.png"
+}
