@@ -7,7 +7,7 @@ import { salvarToken } from './tokenStore.js';
 
 const app = express();
 
-// Servir arquivos estáticos da pasta /public
+// Servir arquivos da pasta /public
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 app.use(express.static(path.join(__dirname, 'public')));
@@ -17,12 +17,12 @@ const CLIENT_ID = process.env.CLIENT_ID;
 const CLIENT_SECRET = process.env.CLIENT_SECRET;
 const REDIRECT_URI = 'https://stremio-assistido-trakt-addon.vercel.app/auth/callback';
 
-// Rota inicial redireciona para configuração
+// Página inicial redireciona para /configure
 app.get('/', (req, res) => {
   res.redirect('/configure');
 });
 
-// Página de login com o Trakt
+// Página com botão de login Trakt
 app.get('/configure', (req, res) => {
   const authUrl = `https://trakt.tv/oauth/authorize?response_type=code&client_id=${CLIENT_ID}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}`;
   res.send(`
@@ -39,7 +39,7 @@ app.get('/configure', (req, res) => {
   `);
 });
 
-// Callback OAuth → troca código por token e salva com UID
+// Callback após login do Trakt → salva token + UID
 app.get('/auth/callback', async (req, res) => {
   const code = req.query.code;
   if (!code) return res.status(400).send('Código de autorização não fornecido.');
@@ -53,8 +53,8 @@ app.get('/auth/callback', async (req, res) => {
         client_id: CLIENT_ID,
         client_secret: CLIENT_SECRET,
         redirect_uri: REDIRECT_URI,
-        grant_type: 'authorization_code',
-      }),
+        grant_type: 'authorization_code'
+      })
     });
 
     if (!tokenResponse.ok) {
@@ -78,12 +78,12 @@ app.get('/auth/callback', async (req, res) => {
       </html>
     `);
   } catch (err) {
-    console.error('Erro na autenticação:', err);
+    console.error('Erro na autenticação:', err.message);
     res.status(500).send('Erro interno ao processar autenticação.');
   }
 });
 
-// Rota que retorna o token salvo no Redis via UID
+// Busca token pelo UID
 app.get('/stremio', async (req, res) => {
   const uid = req.query.uid;
   if (!uid) return res.status(400).send('UID não fornecido.');
@@ -94,17 +94,17 @@ app.get('/stremio', async (req, res) => {
     if (!token) return res.status(404).send('Token não encontrado para este UID.');
     res.json(token);
   } catch (err) {
-    console.error('Erro ao buscar token:', err);
+    console.error('Erro ao buscar token:', err.message);
     res.status(500).send('Erro interno ao buscar token.');
   }
 });
 
-// Corrigida: rota para servir o addon.js ao Stremio
+// 🔧 Rota corrigida para servir addon.js ao Stremio
 app.get('/addon.js', async (req, res) => {
   try {
-    const { default: getInterface } = await import('./addon.js');
+    const { default: manifest } = await import('./addon.js');
     res.setHeader('Content-Type', 'application/json');
-    res.send(JSON.stringify(getInterface)); // <- não executa como função
+    res.send(JSON.stringify(manifest));
   } catch (err) {
     console.error('Erro ao carregar addon.js:', err.message);
     res.status(500).send('Erro ao carregar o addon.');
