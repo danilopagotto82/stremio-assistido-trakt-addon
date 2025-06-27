@@ -50,3 +50,8 @@ builder.defineStreamHandler(async ({ id }, extra) => {
 
 // 👇 Aqui o manifesto é exportado DIRETAMENTE — sem async, sem função!
 export default builder.getInterface();
+
+
+import { serveHTTP } from 'stremio-addon-sdk';
+
+serveHTTP(builder.getInterface(), { port: process.env.PORT || 7000 });
