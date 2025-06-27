@@ -7,7 +7,7 @@ export default function getInterface() {
     id: 'org.trakt.assistido',
     version: '1.0.0',
     name: 'Assistido Trakt',
-    description: 'Mostra streams baseados no histórico do Trakt',
+    description: 'Mostra streams com base no histórico do Trakt',
     resources: ['stream'],
     types: ['movie'],
     idPrefixes: ['tt'],
