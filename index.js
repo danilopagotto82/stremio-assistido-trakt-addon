@@ -1,13 +1,16 @@
 const express = require('express');
-const fetch = require('node-fetch');
+const fetch = require('node-fetch'); // Certifique-se que a versão é 2.x no package.json
 const app = express();
 
-const CLIENT_ID = 'b7f40da45b05de1f3c72c8ab4a7b485feb1365a202fe362560e7dfaf53bf99e6';
-const CLIENT_SECRET = 'c93bc3bfead15915193ebc789783fc99d16a587b6470dc65094b17b0facdb13e';
+// Recomendo usar variáveis de ambiente para segurança
+const CLIENT_ID = process.env.CLIENT_ID || 'b7f40da45b05de1f3c72c8ab4a7b485feb1365a202fe362560e7dfaf53bf99e6';
+const CLIENT_SECRET = process.env.CLIENT_SECRET || 'c93bc3bfead15915193ebc789783fc99d16a587b6470dc65094b17b0facdb13e';
 
+// Atualize para seu domínio do Vercel:
 const REDIRECT_URI = 'https://stremio-assistido-trakt-addon.vercel.app/auth/callback';
 
 app.get('/', (req, res) => {
+  // Redireciona direto para configuração
   res.redirect('/configure');
 });
 
@@ -53,7 +56,7 @@ app.get('/auth/callback', async (req, res) => {
 
     const tokenData = await tokenResponse.json();
 
-    // Aqui você pode salvar tokenData para uso futuro ou mostrar ao usuário
+    // Você pode salvar tokenData em banco ou exibir ao usuário
     res.send(`
       <html>
         <head><title>Token Obtido</title></head>
