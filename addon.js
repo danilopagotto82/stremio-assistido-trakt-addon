@@ -7,7 +7,7 @@ export default function getInterface() {
     id: 'org.trakt.assistido',
     version: '1.0.0',
     name: 'Assistido Trakt',
-    description: 'Mostra streams com base no histórico do Trakt',
+    description: 'Mostra streams baseados no histórico do Trakt',
     resources: ['stream'],
     types: ['movie'],
     idPrefixes: ['tt'],
@@ -15,16 +15,10 @@ export default function getInterface() {
 
   builder.defineStreamHandler(async ({ id }, extra) => {
     const uid = extra?.uid;
-    if (!uid) {
-      console.warn('UID não fornecido.');
-      return { streams: [] };
-    }
+    if (!uid) return { streams: [] };
 
     const token = await buscarToken(uid);
-    if (!token) {
-      console.warn(`Token não encontrado para UID: ${uid}`);
-      return { streams: [] };
-    }
+    if (!token) return { streams: [] };
 
     try {
       const response = await fetch('https://api.trakt.tv/sync/history/movies?limit=1', {
