@@ -52,7 +52,8 @@ builder.defineStreamHandler(async ({ id }, extra) => {
 
 
 
-import { serveHTTP } from 'stremio-addon-sdk';
+
+serveHTTP(builder.getInterface(), { port: process.env.PORT || 7000 });
 
 serveHTTP(builder.getInterface(), { port: process.env.PORT || 7000 });
 
