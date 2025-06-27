@@ -1,4 +1,4 @@
-const express = require('express');
+cconst express = require('express');
 const axios = require('axios');
 
 const app = express();
@@ -6,6 +6,11 @@ const PORT = process.env.PORT || 3000;
 
 // Função para obter a URL de callback corretamente
 const getRedirectUri = (req) => `${req.protocol}://${req.get('host')}/auth/callback`;
+
+// Redirecionar "/" para "/configure"
+app.get('/', (req, res) => {
+  res.redirect('/configure');
+});
 
 // Rota de manifesto para Stremio
 app.get('/manifest.json', (req, res) => {
