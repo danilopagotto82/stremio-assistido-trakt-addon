@@ -10,11 +10,12 @@ const builder = new addonBuilder({
   idPrefixes: ['tt'],
 });
 
+// Handler só será executado quando o Stremio buscar um stream
 builder.defineStreamHandler(async ({ id }, extra) => {
-  try {
-    const uid = extra?.uid;
-    if (!uid) return { streams: [] };
+  const uid = extra?.uid;
+  if (!uid) return { streams: [] };
 
+  try {
     const { buscarToken } = await import('./tokenStore.js');
     const fetch = (await import('node-fetch')).default;
 
@@ -47,4 +48,5 @@ builder.defineStreamHandler(async ({ id }, extra) => {
   }
 });
 
+// 👇 Aqui o manifesto é exportado DIRETAMENTE — sem async, sem função!
 export default builder.getInterface();
