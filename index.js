@@ -7,22 +7,22 @@ import { salvarToken } from './tokenStore.js';
 
 const app = express();
 
-// Configurações para servir arquivos estáticos (como /public/configure.html)
+// Servir arquivos estáticos da pasta /public
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Variáveis de ambiente do Vercel
+// Variáveis de ambiente
 const CLIENT_ID = process.env.CLIENT_ID;
 const CLIENT_SECRET = process.env.CLIENT_SECRET;
 const REDIRECT_URI = 'https://stremio-assistido-trakt-addon.vercel.app/auth/callback';
 
-// Rota raiz redireciona para /configure
+// Rota inicial redireciona para configuração
 app.get('/', (req, res) => {
   res.redirect('/configure');
 });
 
-// Tela de login com o Trakt
+// Página de login com o Trakt
 app.get('/configure', (req, res) => {
   const authUrl = `https://trakt.tv/oauth/authorize?response_type=code&client_id=${CLIENT_ID}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}`;
   res.send(`
@@ -39,7 +39,7 @@ app.get('/configure', (req, res) => {
   `);
 });
 
-// Callback OAuth: troca código por token e salva com UID
+// Recebe código de autorização e salva o token com UID
 app.get('/auth/callback', async (req, res) => {
   const code = req.query.code;
   if (!code) return res.status(400).send('Código de autorização não fornecido.');
@@ -64,7 +64,6 @@ app.get('/auth/callback', async (req, res) => {
 
     const tokenData = await tokenResponse.json();
     const uid = uuidv4();
-
     await salvarToken(uid, tokenData);
 
     res.send(`
@@ -84,7 +83,7 @@ app.get('/auth/callback', async (req, res) => {
   }
 });
 
-// Rota que retorna token via UID
+// Rota para buscar token salvo no Redis via UID
 app.get('/stremio', async (req, res) => {
   const uid = req.query.uid;
   if (!uid) return res.status(400).send('UID não fornecido.');
@@ -101,24 +100,12 @@ app.get('/stremio', async (req, res) => {
   }
 });
 
-// Rota para servir o addon.js ao Stremio
+// Rota para servir o addon.js com suporte ao Stremio
 app.get('/addon.js', async (req, res) => {
   try {
     const { default: getInterface } = await import('./addon.js');
     res.setHeader('Content-Type', 'application/json');
     res.send(JSON.stringify(await getInterface()));
-  } catch (err) {
-    console.error('Erro ao carregar addon.js:', err.message);
-    res.status(500).send('Erro ao carregar o addon.');
-  }
-});
-// Rota para servir o addon.js ao Stremio com suporte ao UID
-app.get('/addon.js', async (req, res) => {
-  try {
-    const { default: getInterface } = await import('./addon.js');
-    res.setHeader('Content-Type', 'application/json');
-    const manifest = await getInterface();
-    res.send(JSON.stringify(manifest));
   } catch (err) {
     console.error('Erro ao carregar addon.js:', err.message);
     res.status(500).send('Erro ao carregar o addon.');
