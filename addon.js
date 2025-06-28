@@ -24,7 +24,7 @@ builder.defineStreamHandler(async ({ id }, extra) => {
       headers: {
         Authorization: `Bearer ${token.access_token}`,
         'trakt-api-version': '2',
-        'trakt-api-key': 'b7f40da45b05de1f3c72c8ab4a7b485feb1365a202fe362560e7dfaf53bf99e6',
+        'trakt-api-key': 'SUA_API_KEY_AQUI',
       },
     });
 
@@ -47,3 +47,4 @@ builder.defineStreamHandler(async ({ id }, extra) => {
 });
 
 serveHTTP(builder.getInterface(), { port: process.env.PORT || 7000 });
+
