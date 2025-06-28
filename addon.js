@@ -10,41 +10,16 @@ const builder = new addonBuilder({
   idPrefixes: ['tt'],
 });
 
-builder.defineStreamHandler(async ({ id }, extra) => {
-  const uid = extra?.uid;
-  if (!uid) return { streams: [] };
-
-  try {
-    const { buscarToken } = await import('./tokenStore.js');
-    const fetch = (await import('node-fetch')).default;
-    const token = await buscarToken(uid);
-    if (!token) return { streams: [] };
-
-    const response = await fetch('https://api.trakt.tv/sync/history/movies?limit=1', {
-      headers: {
-        Authorization: `Bearer ${token.access_token}`,
-        'trakt-api-version': '2',
-        'trakt-api-key': 'SUA_API_KEY_AQUI',
+builder.defineStreamHandler(() => {
+  return Promise.resolve({
+    streams: [
+      {
+        title: 'Exemplo de Stream',
+        name: 'Assistido Trakt',
+        url: 'https://trakt.tv/',
       },
-    });
-
-    const data = await response.json();
-    const title = data?.[0]?.movie?.title ?? 'Filme assistido';
-
-    return {
-      streams: [
-        {
-          title: `🎬 ${title}`,
-          name: 'Assistido no Trakt',
-          url: 'https://trakt.tv/',
-        },
-      ],
-    };
-  } catch (err) {
-    console.error('Erro no handler:', err.message);
-    return { streams: [] };
-  }
+    ],
+  });
 });
 
 serveHTTP(builder.getInterface(), { port: process.env.PORT || 7000 });
-
