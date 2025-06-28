@@ -22,8 +22,7 @@ builder.defineStreamHandler(() => {
   });
 });
 
-// Serve via HTTP (para Vercel)
 serveHTTP(builder.getInterface(), { port: process.env.PORT || 7000 });
 
-// Exporta o manifesto (para Vercel usar como função)
+// Exporta o manifesto para Vercel
 export default () => builder.getInterface();
