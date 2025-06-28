@@ -1,9 +1,12 @@
 {
   "version": 2,
   "builds": [
-    { "src": "addon.js", "use": "@vercel/node" }
+    { "src": "api/*.js", "use": "@vercel/node" }
   ],
   "routes": [
-    { "src": "/(.*)", "dest": "/addon.js" }
+    { "src": "/addon.js", "dest": "/api/manifest.js" },
+    { "src": "/configure", "dest": "/public/configure.html" },
+    { "src": "/auth/callback", "dest": "/api/auth.js" },
+    { "src": "/stream", "dest": "/api/stream.js" }
   ]
 }
