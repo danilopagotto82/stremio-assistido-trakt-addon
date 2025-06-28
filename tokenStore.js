@@ -1,12 +1,25 @@
-const tokenFixo = {
-  access_token: 'COLE_AQUI_SEU_TOKEN_TRATK',
-  token_type: 'Bearer',
-  expires_in: 7776000,
-  refresh_token: 'refresh_token_aqui',
-  scope: 'public',
-  created_at: 999999999
-};
+const fetch = require('node-fetch');
 
-export async function buscarToken(uid) {
-  return tokenFixo;
+const redisUrl = process.env.REDIS_REST_URL;
+const redisToken = process.env.REDIS_REST_TOKEN;
+
+async function salvarToken(uid, token) {
+  await fetch(`${redisUrl}/set/${uid}`, {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${redisToken}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(token)
+  });
 }
+
+async function buscarToken(uid) {
+  const res = await fetch(`${redisUrl}/get/${uid}`, {
+    headers: { Authorization: `Bearer ${redisToken}` }
+  });
+  const data = await res.json();
+  return data.result ? JSON.parse(data.result) : null;
+}
+
+module.exports = { salvarToken, buscarToken };
