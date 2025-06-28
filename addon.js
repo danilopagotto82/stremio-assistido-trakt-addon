@@ -1,4 +1,4 @@
-import { addonBuilder } from 'stremio-addon-sdk';
+import { addonBuilder, serveHTTP } from 'stremio-addon-sdk';
 
 const builder = new addonBuilder({
   id: 'org.trakt.assistido',
@@ -10,7 +10,6 @@ const builder = new addonBuilder({
   idPrefixes: ['tt'],
 });
 
-// Handler só será executado quando o Stremio buscar um stream
 builder.defineStreamHandler(async ({ id }, extra) => {
   const uid = extra?.uid;
   if (!uid) return { streams: [] };
@@ -18,7 +17,6 @@ builder.defineStreamHandler(async ({ id }, extra) => {
   try {
     const { buscarToken } = await import('./tokenStore.js');
     const fetch = (await import('node-fetch')).default;
-
     const token = await buscarToken(uid);
     if (!token) return { streams: [] };
 
@@ -48,14 +46,4 @@ builder.defineStreamHandler(async ({ id }, extra) => {
   }
 });
 
-// 👇 Aqui o manifesto é exportado DIRETAMENTE — sem async, sem função!
-
-
-
-
-serveHTTP(builder.getInterface(), { port: process.env.PORT || 7000 });
-
-serveHTTP(builder.getInterface(), { port: process.env.PORT || 7000 });
-
-import { serveHTTP } from 'stremio-addon-sdk';
 serveHTTP(builder.getInterface(), { port: process.env.PORT || 7000 });
